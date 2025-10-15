@@ -4,441 +4,77 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Chemcon Story — v3.5 (Full site, capex fixed)</title>
-    <meta name="description" content="Interactive site: snap timeline + minimap, blueprint, capacity, charts (EPS/CWIP/R&D + Capex/Working Capital), products, builder's ladder, CSV exports, a11y + performance. English copy with SVG illustrations." />
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Chemcon Story ‌ v3.5 (Full site, capex fixed)</title>
     <style>
-      :root{ --bg:#0f1115; --card:#151923; --muted:#94a3b8; --text:#e5e7eb; --accent:#22d3ee; --ok:#84cc16; --warn:#f59e0b; --bad:#ef4444;}
-      body{background:var(--bg); color:var(--text)}
-      .card{background:var(--card); border:1px solid rgba(255,255,255,.06); box-shadow:0 10px 24px rgba(0,0,0,.35);} .muted{color:var(--muted)}
-      .pill{background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); padding:6px 10px; border-radius:999px; font-size:12px; display:inline-flex; align-items:center; gap:6px}
-      .btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:8px 12px;font-size:12px} .btn:active{transform:translateY(1px)}
-      .h2{font-size:22px; font-weight:700} a{color:var(--accent); text-decoration:underline}
-      .kbd{background:rgba(255,255,255,.06); padding:2px 6px; border-radius:6px; border:1px solid rgba(255,255,255,.1)}
-      .tag{font-size:10px; padding:2px 6px; border-radius:999px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.06)}
-      .sticky-nav{position:sticky; top:0; z-index:40; backdrop-filter: blur(6px); background:rgba(15,17,21,.7); border-bottom:1px solid rgba(255,255,255,.06)}
-      .timeline-wrap{position:relative}
-      .timeline-viewport{overflow-x:auto; overflow-y:hidden; cursor:grab; scroll-behavior:smooth; border-radius:12px; scroll-padding-inline: 120px; overscroll-behavior-inline: contain;}
-      .timeline-viewport:active{cursor:grabbing}
-      .timeline-inner{position:relative; height:460px; min-width:1200px}
-      .scroll-hint{position:absolute; right:12px; top:12px; background:#0b1220; border:1px solid rgba(255,255,255,.12); padding:6px 10px; border-radius:999px; font-size:12px; opacity:.9}
-      .minimap{height:10px; border-radius:999px; background:linear-gradient(90deg,#f97316,#f59e0b,#84cc16,#22d3ee); position:relative; overflow:hidden; border:1px solid rgba(255,255,255,.12); cursor:pointer}
-      .mini-window{position:absolute; top:0; height:100%; background:rgba(255,255,255,.7); mix-blend:overlay; border-radius:999px; border:1px solid rgba(255,255,255,.45)}
-      .focusable:focus{outline:2px solid #22d3ee; outline-offset:2px}
-      @media (prefers-reduced-motion: reduce){ .timeline-viewport{scroll-behavior:auto} .anim{animation:none!important; transition:none!important} }
-      table th, table td { padding:8px 6px }
-      thead tr { border-bottom:1px solid rgba(255,255,255,.1) }
-      tbody tr { border-bottom:1px dashed rgba(255,255,255,.07) }
-      section[cv] { content-visibility:auto; contain-intrinsic-size: auto 600px; }
+      html, body { margin: 0; font-family: Inter, System-Ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif; text-rendering: optimizeSpeed; -webkit-font-smoothing: antialiased; scholl-behavior: smooth; color-scheme: light;} /* theme levels */
+      : root { background: linear-gradient(20deg, #f7f8f9, #f9fafc) ,linear-gradient(20deg, #ffffff #f2f3f6); background-color: #f7f8f9; }
+      ..thin { font-weight: 300; }
+      .subtle { font-weight: 400; }
+      .smer li { padding: 6px 8px; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,.02); overflow: hidden; transition: all sets .15s ease;}
+      .smer li:active { overflow: visible; transform: translate1d(0, 5px); }
+      mark-over { mix-blend-mode: bump;}
+      /* widget */
+      .wrapper { max-width: 1200px; margin: 0 .62rm; padding: .72rm .75rm; }
+      .block { background: rgba(255, 255, 255, .55); border-radius: 11px; box-shadow: 0 8px 22px rgba(0,0,0,.07); padding: 1em; margin: 1em 0; }
+      hr { border: 0; height: 1px; backkground: linear-gradient(90deg, rgba(235,235,235,.5), rgba(200,200,200,0)); margin: 1em 0; opacity: .5; }
+      .t1 { font-size: 2em; line-height: 1.2; margin: 0 0 .5rem; font-weight: 600;}
+      .twin { display: flex; gap: 1em; }
+      .grad-begin { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; place-self-items: center end; align-items: center; }
+      .grad-item { place-items: center; }
+      .hero { font-size: 1.8em; line-height: 1.26; margin: 0 0 .75rem; }
+      .buttons { display: flex; gap: .8rem; flex-wrap: wrap; padding: .8rem; align-items: center; }
+      .buttons .btn { padding: .65rem .8rem; border: 1px solid rgba(0,0,0,.2); border-radius: 8px; cursor: pointer; background: #fff; transition: background-color .14s ease; }
+      .buttons .btn:hover { background: #f5f5f5; }
+      .btn-primary { font-weight: 600; }
+      .beak { border-left: 4px solid rgba(0,0,0,.2), margin-right: .5rem; padding: .25rem .75rem; color: #666; text-transform: uppercase; font-size: .86rem; letter-spacing: .25rem; }
+      /* themed panels & cards */
+      .panel { background: linear-gradient(90deg, rgba(255,255,255,0.44), #fff); border-radius: 12px; padding: 1em; box-shadow: 0 6px 16px rgba(0,0,0,.08); margin: 0 0 1em; }
+      .panel h2 { margin: 0 0 .5rem; font-size: 1.3em; }
+      .panel ul { margin: .5rem 0; padding-left: 1em; list-style-position: inside; }
+      .panel ul li { margin: .5rem 0 ; }
+      .ctable { width: 100%; table-layout: fixed; border-collapse: collapse; margin: 1em 0 ; }
+      .ctable th { text-align: left; font-size: .92rem; color: #999; }
+      .ctable td,. ctable th { padding: .6rem .8rem; border-bottom: 1px solid rgba(0,0,0,.06); }
+      .ctable-tag { background: #f8f7ff; border-radius: 4px; padding: 2px 6px; margin-right: 5px; font-size: .86rem; color: #666; border: 1px solid rgba(0,0,0,.08); }
+      .chart-vct { max-height: 300px;}
+      .chart-vct * { border: 1px solid rgba(0,0,0,.1); border-radius: 8px; padding: .5rem; background: #fff; }
+      .sticky { position: sticky; top: 0; margin: 0; padding: 0.5rem 1rem; background: rgba(255,255,255,0.75); border: 1px solid rgba(0,0,0,.1); border-radius: 8px; font-size: 0.9rem; color: #444; z-index: 1000; box-shadow: 0 4px 8px rgba(0,0,0,.1); }
+      .sticky h { margin: 0 0 .5rem; font-size: 1.1rem; font-weight: 600; }
+      .sticky ol { margin: .5rem 0; }
+      .sticky li { padding-bottom: .2rem; }
+      /* fleet button / floating key / help pillbox button */
+      .floating-key { position: fixed; right: 12.5px; bottom: 12.5px; border: 1px solid rgba(0,0,0,.2); border-radius: 50px; background: #fff; padding: .65rem .8rem; box-shadow: 0 4px 8px rgba(0,0,0,.1); }
+      .floating-key:hover { background: #f5f5f5; }
+      .floating-key .label { font-size: .86rem; color: #777; display: block; text-align: center; margin-bottom: .2rem; }
+      .floating-key span { font-size: 1.4rem; font-weight: 700; }
+      /* timeline */
+      .timeline-wipe { white-space: nowrap; overflow: hidden; position: relative; rendering-events: none; }
+      .timeline { display: grid; grid-template-columns: auto make 300px ; gap: 0 .8rem; overflow-x: auto; padding: .8rem; place-items: center baseline; max-height: 150px; position: relative; }
+      .timeline-holder { position: sticky; hoby: 0; left: 0; right: 0; bottom: 0; width: 100%; pointer-events: none; background: linear-gradient(0deg, rgba(255,255,255,.25), rgba(255,255,255,0)); background-clip padding-box: content-box; }
+      .timeline-buh�why { display: none; }
+      .timeline-item { width: 600px; min-width: 280px; max-width: 600px; background: rgba(255,255,255,.95); border-radius: 10px; box-shadow: 0 8px 16px rgba(0,0,0,.08); padding: 1em; position: relative; align-self: stretch; }
+      .timeline-title { font-size: 1.2rem; margin-bottom: .3rem; color: #444; }
+      .timeline-date { font-size: .86rem; color: #999; margin-bottom: .5rem; }
+      .timeline-content { font-size: .92rem; line-height: 1.3; color: #666; overflow-text: ellipsis; }
+      .timeline-sleet { position: absolute; right: 0px; top: 0px; bottom: 0; background: linear-gradient(0 deg, rgba(255,255,255,.2),rgba(255,255,255,0)); padding: 8px 4px; border-radius: 8px; z-index: 100; }
+      .timeline-slot { display: none; position: absolute; top: 0; width: 5px; bottom: 0; background: #ccc; border-radius: 3px; }
+      .tickmark { position: absolute; top: 0; left: 0; transform: translate(0px, 0px); }
+      .highlight { background: #fffe66; padding: .3rem .4rem; border: 1px solid rgba(0,0,0,.05); border-radius: 6px; }
+      /* tabs + filters */
+      .topbar { position: sticky; top: 0; left: 0; right: 0; background: rgba(255,255,255,.25); backdrop-filter: blur(30px); border-bottom: 1px solid rgba(0,0,0,.06); }
+      .topbar-content { max-width: 1200px; margin: 0 auto; padding: .5rem .7rem; display: flex; gap: .7rem; align-items: center; }
+      .topbar select, select, .chips { border: 1px solid rgba(0,0,0,.05); border-radius: 8px; padding: .5rem .75rem; font-size: .86rem; }
+      .topbar /* select arrow icon */ svg { pointer-events: none; height: 1em; width: 1em; padding: 0 .4rem; margin-left: .3rem; }
+      .topbar select:hover { background: #f5f5f5; }
+      .topbar-left { display: flex; gap: .8rem; align-items: center; }
+      .topbar-right { display: flex; gap: .8rem; justify-content: flex-end; align-items: center; }
+      .search-in { min-width: 22ch; width: 100%; max-width: 30ch; padding: .3ch .65ch; border: 1px solid rgba(0,0,0,.05); border-radius: 6px; font-size: .86rem; outline: none; }
+      .spacer { display: inline-block; }
+      /* coding area */
+      .code-Block { overflow: hidden; position: relative; margin-top: .8rem; background: #fff; border: 1px solid rgba(0,0,0,.1); box-shadow: 0 4px 8px rgba(0,0,0,.06); padding: .7rem .1rem; border-radius: 12px; }
+      /* sections */
+      .section { margin: 1.2rem 0; }
     </style>
   </head>
   <body>
-    <div class="sticky-nav">
-      <div class="max-w-7xl mx-auto px-5 md:px-8 py-3 flex items-center justify-between gap-3">
-        <div class="text-lg font-semibold">Chemcon Speciality Chemicals — <span class="text-sky-300">Story</span></div>
-        <div class="hidden md:flex items-center gap-2">
-          <a href="#timeline" class="pill focusable" tabindex="0">Timeline</a>
-          <a href="#blueprint" class="pill focusable" tabindex="0">Blueprint</a>
-          <a href="#capacity" class="pill focusable" tabindex="0">Capacity</a>
-          <a href="#charts" class="pill focusable" tabindex="0">Charts</a>
-          <a href="#illustrations" class="pill focusable" tabindex="0">Visuals</a>
-          <a href="#products" class="pill focusable" tabindex="0">Products</a>
-          <a href="#ladder" class="pill focusable" tabindex="0">Builder's Ladder</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="max-w-7xl mx-auto px-5 md:px-8 py-8">
-      <header class="mb-6">
-        <div class="flex items-center justify-between gap-4">
-          <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight">Chemcon Speciality Chemicals — <span class="text-sky-300">Journey</span></h1>
-          <div class="hidden md:flex items-center gap-2">
-            <button id="btnAll" class="btn focusable" title="select all tags">All</button>
-            <button id="btnNone" class="btn focusable" title="deselect all tags">None</button>
-          </div>
-        </div>
-        <p class="muted mt-2 max-w-3xl">drag horizontally or use <span class="kbd">Shift + Mousewheel</span>. keyboard: <span class="kbd">←</span>/<span class="kbd">→</span>. deep‑link a year with <span class="kbd">?y=2019</span>. decade tabs + clickable minimap included.</p>
-      </header>
-
-      <section class="card rounded-2xl p-4 mb-6" cv>
-        <div class="grid md:grid-cols-3 gap-3 items-start">
-          <div class="filterbar md:col-span-2" id="filterBar"></div>
-          <div class="flex flex-col gap-2">
-            <div class="flex gap-2 justify-end">
-              <input id="srch" class="card px-3 py-2 rounded-lg w-48 text-sm" placeholder="Search milestones…"/>
-              <button id="btnReset" class="btn focusable">Clear all</button>
-            </div>
-            <div class="flex gap-2 justify-end">
-              <button id="quick1" class="btn focusable" title="foundation + products">Quick: Build</button>
-              <button id="quick2" class="btn focusable" title="finance + capacity">Quick: Money</button>
-              <button id="quick3" class="btn focusable" title="strategy only">Quick: Strategy</button>
-            </div>
-          </div>
-        </div>
-        <div id="legend" class="mt-3 text-xs muted"></div>
-      </section>
-
-      <section id="timeline" class="timeline-wrap card rounded-2xl p-2 md:p-4 relative overflow-hidden" cv>
-        <div class="h2 mb-2 text-sky-200 uppercase tracking-[.2em] text-center">Timeline Infographic</div>
-        <div class="timeline-viewport" id="tViewport" aria-label="timeline scroller">
-          <div class="timeline-inner" id="tInner">
-            <svg id="timelineSvg" class="absolute left-0 top-0" height="460"></svg>
-            <div id="milestones" class="absolute left-0 top-0"></div>
-            <div class="scroll-hint">drag → or shift+wheel to scroll</div>
-          </div>
-        </div>
-        <div class="mt-3 flex flex-wrap gap-2 items-center">
-          <div id="yearNav" class="flex gap-2 overflow-x-auto"></div>
-          <div id="decadeNav" class="flex gap-2 overflow-x-auto ml-auto"></div>
-        </div>
-        <div class="mt-3 minimap" id="miniMap" title="click to jump">
-          <div id="miniWindow" class="mini-window" style="left:0;width:10%"></div>
-        </div>
-      </section>
-
-      <section id="blueprint" class="mt-10 grid md:grid-cols-2 gap-6" cv>
-        <div class="card rounded-2xl p-5">
-          <div class="h2 mb-2">Blueprint — Factory Planning &amp; Scaling</div>
-          <ul class="text-sm space-y-2">
-            <li>• Route scouting and impurity mapping (GC‑MS / ICP‑OES / IC) → <b>Kilo‑Lab</b></li>
-            <li>• <b>CTQ lock</b> with customers → validation lots (light QbD)</li>
-            <li>• <b>Swing‑ready P&amp;ID</b> (multi‑product GLRs)</li>
-            <li>• Utilities headroom: HCl scrubbers, bromine handling, <b>ZLD</b></li>
-            <li>• <b>QA/QC harmonisation</b> → faster audits; export‑friendly warehouse grid</li>
-          </ul>
-          <div class="mt-4 flex gap-2">
-            <button id="dlMilestones" class="btn focusable">Download milestones.csv</button>
-          </div>
-        </div>
-        <div id="capacity" class="card rounded-2xl p-5 overflow-x-auto">
-          <div class="h2 mb-2">Capacity Blocks (Snapshot)</div>
-          <table class="text-sm w-full" id="capTable">
-            <thead class="uppercase text-[11px] tracking-wide">
-              <tr class="text-left text-slate-400">
-                <th class="py-2">Block</th><th>Focus</th><th>Installed</th><th>Reactor</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-          <div class="mt-2 text-[11px] muted">*Pre‑IPO 1,800 MTPA reference; later commentary points higher. See page notes.</div>
-          <div class="mt-3"><button id="dlCapacity" class="btn focusable">Download capacity.csv</button></div>
-        </div>
-      </section>
-
-      <section id="charts" class="mt-10" cv>
-        <div class="h2 mb-3">Charts (AR 2023–24)</div>
-        <div class="grid md:grid-cols-3 gap-6">
-          <canvas id="eps" height="180" class="card rounded-2xl p-3"></canvas>
-          <canvas id="cwip" height="180" class="card rounded-2xl p-3"></canvas>
-          <canvas id="rnd" height="180" class="card rounded-2xl p-3"></canvas>
-        </div>
-        <p class="muted text-xs mt-2">EPS: ₹15.04 → ₹5.24; CWIP: ₹1,364.47 lakh → ₹4,244.77 lakh (P10 ₹2,256.22 lakh); R&amp;D: ₹14.48 lakh (0.05% of sales). Source: AR 2023–24.</p>
-      </section>
-
-      <section id="illustrations" class="mt-10 card rounded-2xl p-5" cv>
-        <div class="h2 mb-3">Visual Explainers — Concepts</div>
-        <p class="muted text-sm mb-3">Diagrams to connect lab‑thinking to plant‑thinking.</p>
-        <div class="grid md:grid-cols-2 gap-6">
-          <div class="card rounded-xl p-4">
-            <div class="h2 mb-2">Simplified Factory Layout</div>
-            <div class="muted text-xs mb-2">Flow: Raw materials → Reactor → Purification → Emissions control → QC → Packaging → Warehouse</div>
-            <svg viewBox="0 0 680 300" class="w-full h-auto" aria-label="factory layout schematic">
-              <defs>
-                <linearGradient id="flow" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#22d3ee"/>
-                  <stop offset="100%" stop-color="#84cc16"/>
-                </linearGradient>
-              </defs>
-              <rect x="20"  y="40" width="120" height="60" rx="10" fill="#1f2937" stroke="#334155"/>
-              <text x="80" y="75" text-anchor="middle" fill="#e5e7eb" font-size="12">RM Storage</text>
-              <rect x="180" y="40" width="120" height="60" rx="10" fill="#1f2937" stroke="#334155"/>
-              <text x="240" y="75" text-anchor="middle" fill="#e5e7eb" font-size="12">Reactor</text>
-              <rect x="340" y="40" width="120" height="60" rx="10" fill="#1f2937" stroke="#334155"/>
-              <text x="400" y="75" text-anchor="middle" fill="#e5e7eb" font-size="12">Distillation</text>
-              <rect x="500" y="40" width="160" height="60" rx="10" fill="#1f2937" stroke="#334155"/>
-              <text x="580" y="75" text-anchor="middle" fill="#e5e7eb" font-size="12">Scrubber &amp; Vents</text>
-              <rect x="180" y="150" width="120" height="60" rx="10" fill="#1f2937" stroke="#334155"/>
-              <text x="240" y="185" text-anchor="middle" fill="#e5e7eb" font-size="12">QC Lab</text>
-              <rect x="340" y="150" width="120" height="60" rx="10" fill="#1f2937" stroke="#334155"/>
-              <text x="400" y="185" text-anchor="middle" fill="#e5e7eb" font-size="12">Packaging</text>
-              <rect x="500" y="150" width="160" height="60" rx="10" fill="#1f2937" stroke="#334155"/>
-              <text x="580" y="185" text-anchor="middle" fill="#e5e7eb" font-size="12">Warehouse</text>
-              <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#22d3ee"/></marker></defs>
-              <path d="M140,70 L180,70" stroke="url(#flow)" stroke-width="6" marker-end="url(#arr)"/>
-              <path d="M300,70 L340,70" stroke="url(#flow)" stroke-width="6" marker-end="url(#arr)"/>
-              <path d="M460,70 L500,70" stroke="url(#flow)" stroke-width="6" marker-end="url(#arr)"/>
-              <path d="M240,100 L240,150" stroke="url(#flow)" stroke-width="6" marker-end="url(#arr)"/>
-              <path d="M400,100 L400,150" stroke="url(#flow)" stroke-width="6" marker-end="url(#arr)"/>
-              <path d="M460,180 L500,180" stroke="url(#flow)" stroke-width="6" marker-end="url(#arr)"/>
-            </svg>
-          </div>
-          <div class="card rounded-xl p-4">
-            <div class="h2 mb-2">Scale‑Up Path</div>
-            <svg viewBox="0 0 680 240" class="w-full h-auto" aria-label="scale-up path diagram">
-              <defs>
-                <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#f97316"/>
-                  <stop offset="50%" stop-color="#f59e0b"/>
-                  <stop offset="100%" stop-color="#22d3ee"/>
-                </linearGradient>
-              </defs>
-              <g>
-                <circle cx="60" cy="120" r="25" fill="#1f2937" stroke="#334155"/><text x="60" y="125" text-anchor="middle" fill="#e5e7eb" font-size="12">Beaker</text>
-                <rect x="140" y="95" width="80" height="50" rx="12" fill="#1f2937" stroke="#334155"/><text x="180" y="125" text-anchor="middle" fill="#e5e7eb" font-size="12">Kilo‑Lab</text>
-                <rect x="260" y="85" width="110" height="70" rx="12" fill="#1f2937" stroke="#334155"/><text x="315" y="125" text-anchor="middle" fill="#e5e7eb" font-size="12">Pilot</text>
-                <rect x="410" y="75" width="120" height="90" rx="12" fill="#1f2937" stroke="#334155"/><text x="470" y="125" text-anchor="middle" fill="#e5e7eb" font-size="12">Single‑Product</text>
-                <rect x="560" y="65" width="100" height="110" rx="12" fill="#1f2937" stroke="#334155"/><text x="610" y="125" text-anchor="middle" fill="#e5e7eb" font-size="12">Multipurpose</text>
-                <path d="M 85 120 L 140 120 L 220 120 L 260 120 L 370 120 L 410 120 L 560 120" stroke="url(#grad2)" stroke-width="6" marker-end="url(#arr2)" />
-              </g>
-              <defs><marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b"/></marker></defs>
-            </svg>
-            <p class="muted text-xs mt-2">each step increases batch size, safety controls, documentation, and capital intensity.</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="mt-10 card rounded-2xl p-5" cv>
-        <div class="section-title flex items-center justify-between">
-          <div class="h2">Product Portfolio — Spec Cards (Indicative)</div>
-          <button id="dlProducts" class="btn focusable">Download products.csv</button>
-        </div>
-        <p class="muted text-sm mt-1">bands are indicative; confirm with the latest COA / SDS. hazards flagged for safe handling.</p>
-        <div id="products" class="mt-4 grid md:grid-cols-3 gap-4"></div>
-      </section>
-
-      <section class="mt-10 grid md:grid-cols-2 gap-6" cv>
-        <div class="card rounded-2xl p-4">
-          <div class="h2 mb-2">Capex Ladder — Beaker → IPO (₹ Cr, Illustrative)</div>
-          <canvas id="capex" height="220"></canvas>
-          <p class="muted text-xs mt-2">capex depends on product risk, utilities, and safety engineering. use these as planning anchors, not final numbers.</p>
-        </div>
-        <div class="card rounded-2xl p-4">
-          <div class="h2 mb-2">Working Capital Profile (Days)</div>
-          <canvas id="wcap" height="220"></canvas>
-          <p class="muted text-xs mt-2">illustrative: DSO/DIO/DPO guide credit lines (CC/EPC/PCFC). export mix can change the shape.</p>
-        </div>
-      </section>
-
-      <section id="ladder" class="mt-10 card rounded-2xl p-5" cv>
-        <div class="section-title">
-          <div class="h2">From Beaker to IPO: Builder’s Ladder (Chemist‑Friendly)</div>
-          <div class="flex gap-2">
-            <button id="expandAll" class="btn focusable">Expand all</button>
-            <button id="collapseAll" class="btn focusable">Collapse all</button>
-          </div>
-        </div>
-        <p class="muted text-sm mt-1">each stage shows its objective, typical scale, capex range, funding options, documents, kpis, and a valuation thumb‑rule. <b>illustrative for india speciality‑chem.</b></p>
-        <div id="ladderHost" class="mt-4 space-y-3"></div>
-      </section>
-
-      <section class="mt-10 mb-16" cv>
-        <div class="h2 mb-2">Notes &amp; Sources</div>
-        <ol class="text-sm list-decimal pl-6 muted space-y-1">
-          <li>DSIJ: pre‑IPO capacities/reactor volumes.</li>
-          <li>Sharekhan: milestones overview.</li>
-          <li>AR 2023–24: CWIP, EPS, R&amp;D disclosure.</li>
-        </ol>
-      </section>
-    </div>
-
-    <script>
-      const data = [
-        { year:'1996', label:'Incorporation', text:'Chemcon Engineers incorporated', tag:'foundation' },
-        { year:'2004', label:'Amalgamation', text:'Renamed to Chemcon Speciality Chemicals', tag:'foundation' },
-        { year:'2005', label:'First HMDS export', text:'Pharma qualification loops begin', tag:'markets' },
-        { year:'2014', label:'CMIC onstream', text:'Pharma intermediate commercial', tag:'products' },
-        { year:'2015', label:'CaBr₂ brine', text:'Oil‑well completion chemical', tag:'products' },
-        { year:'2016', label:'ZnBr₂ brine', text:'Oil‑well line‑up expands', tag:'products' },
-        { year:'2017', label:'NaBr brine', text:'Third brine commercial', tag:'products' },
-        { year:'2018', label:'P2 rebuild', text:'High‑purity HMDS focus', tag:'capacity' },
-        { year:'2019', label:'CMIC raise', text:'Capacity and exports push', tag:'capacity' },
-        { year:'Mar 2020', label:'P7 multipurpose', text:'~125 kL MP plant onstream', tag:'capacity' },
-        { year:'Sep 2020', label:'IPO ₹318 Cr', text:'₹165 Cr fresh for capex + WC', tag:'finance' },
-        { year:'2021', label:'P8/P9/P10 plan', text:'TMCS backward‑integration intent', tag:'strategy' },
-        { year:'2022', label:'P9 trials', text:'Bromobenzene pilot runs', tag:'products' },
-        { year:'2023', label:'P9 onstream', text:'Bromobenzene commercial', tag:'products' },
-        { year:'Mar 2024', label:'CWIP ↑', text:'₹4,244.77 lakh; P10 ₹2,256.22 lakh', tag:'finance' },
-        { year:'2024–25', label:'E‑HMDS', text:'Semi‑adjacent grade exploration', tag:'products' },
-      ];
-      const tags = [
-        {k:'foundation', color:'#f97316', emoji:'🏗️'},
-        {k:'capacity', color:'#f59e0b', emoji:'⚙️'},
-        {k:'products', color:'#84cc16', emoji:'🧪'},
-        {k:'markets', color:'#22d3ee', emoji:'🌍'},
-        {k:'finance', color:'#38bdf8', emoji:'💸'},
-        {k:'strategy', color:'#a78bfa', emoji:'🧭'},
-      ];
-      function renderFilters(){
-        const host=document.getElementById('filterBar'); host.innerHTML='';
-        tags.forEach(t=>{
-          const chip=document.createElement('label'); chip.className='pill focusable'; chip.style.borderColor=t.color+'55'; chip.tabIndex=0;
-          chip.innerHTML=`<input type="checkbox" data-tag="${t.k}" checked/> <span style="width:12px;height:12px;border-radius:999px;background:${t.color}"></span> ${t.emoji} ${t.k}`;
-          host.appendChild(chip);
-        });
-      }
-      function activeTags(){ return [...document.querySelectorAll('.pill input:checked')].map(x=>x.dataset.tag); }
-      function buildTimeline(){
-        const N = data.length; const segW = 320; const W = Math.max(1400, segW*(N-1)+160); const H = 460;
-        const svg = document.getElementById('timelineSvg'); svg.setAttribute('width', W); svg.setAttribute('viewBox', '0 0 '+W+' '+H);
-        const base = 320, amp = 80; let x=60, y=base; let d=`M${x},${y}`;
-        for(let i=1;i<N;i++){ const nx = 60 + segW*i; const ny = base + (i%2===0? -amp: amp)*0.6; const cx1 = x + segW*0.4, cy1 = y; const cx2 = nx - segW*0.4, cy2 = ny; d += ` C ${cx1},${cy1} ${cx2},${cy2} ${nx},${ny}`; x=nx; y=ny; }
-        svg.innerHTML = `<defs>
-          <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#f97316"/>
-            <stop offset="30%" stop-color="#f59e0b"/>
-            <stop offset="60%" stop-color="#84cc16"/>
-            <stop offset="100%" stop-color="#22d3ee"/>
-          </linearGradient>
-          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
-            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-        </defs>
-        <path id="curve" d="${d}" fill="none" stroke="url(#grad)" stroke-width="10" filter="url(#glow)" stroke-linecap="round"/>`;
-        document.getElementById('tInner').style.width = W+'px';
-        requestAnimationFrame(()=>{ requestAnimationFrame(()=>{ safePlaceMilestones(12); renderYearNav(); renderDecadeNav(); const params=new URLSearchParams(location.search); const y=params.get('y'); if(y) scrollToYear(y); }); });
-      }
-      function renderDecadeNav(){
-        const years = data.map(d=> String(d.year).match(/\d{4}/)?.[0]).filter(Boolean).map(Number);
-        const unique = [...new Set(years.map(y=> Math.floor(y/10)*10))].sort((a,b)=>a-b);
-        const host=document.getElementById('decadeNav'); host.innerHTML='';
-        unique.forEach(dec=>{
-          const b=document.createElement('button'); b.className='pill focusable'; b.textContent=dec+'s';
-          b.onclick=()=>{ const first = data.find(m=> (String(m.year).match(/\d{4}/)?.[0]||'').startsWith(String(dec))); if(first) scrollToYear(first.year); };
-          host.appendChild(b);
-        });
-      }
-      function safePlaceMilestones(retries){
-        const curve = document.getElementById('curve');
-        if(!curve){ if(retries>0) return setTimeout(()=>safePlaceMilestones(retries-1), 50); return; }
-        placeMilestones();
-      }
-      function placeMilestones(){
-        const curve = document.getElementById('curve'); const host=document.getElementById('milestones'); if(!curve) return;
-        const len=curve.getTotalLength(); host.innerHTML='';
-        const act = new Set(activeTags()); const q=(document.getElementById('srch')?.value||'').toLowerCase();
-        const cards=[]; const counts={};
-        data.forEach((m,i)=>{
-          if(!act.has(m.tag)) return;
-          const blob=(m.year+' '+m.label+' '+m.text).toLowerCase(); if(q && !blob.includes(q)) return;
-          counts[m.tag]=(counts[m.tag]||0)+1;
-          const p = curve.getPointAtLength(len * (i/(data.length-1)));
-          const dot = document.createElement('div'); Object.assign(dot.style,{position:'absolute', left:(p.x-6)+'px', top:(p.y-6)+'px', width:'12px', height:'12px', borderRadius:'999px', background:'white', boxShadow:'0 0 0 6px rgba(255,255,255,.12)'}); host.appendChild(dot);
-          const card=document.createElement('div'); card.className='absolute card rounded-xl p-3 focusable'; card.setAttribute('tabindex','0'); const up=i%2===0; card.style.left=(p.x-180)+'px'; card.style.top=(up? (p.y-160):(p.y+18))+'px'; card.style.width='240px';
-          card.dataset.snapx = p.x; card.dataset.year = m.year;
-          card.innerHTML=`<div class="flex items-center gap-2 text-xs uppercase tracking-wide" style="color:#93c5fd"><span class="pill">${m.year}</span><span>${m.label}</span></div><div class="text-[13px] mt-1">${m.text}</div><div class="mt-2"><span class="tag">${m.tag}</span></div>`;
-          host.appendChild(card); cards.push({x:p.x, node:card, year:m.year});
-        });
-        window.__cards = cards.sort((a,b)=>a.x-b.x);
-        const legend=document.getElementById('legend'); if(legend) legend.innerHTML = tags.map(t=> `<span class="tag" style="margin-right:6px">${t.emoji} ${t.k}: ${counts[t.k]||0}</span>`).join('') + ` <span class="tag">visible: ${(cards||[]).length}</span>`;
-        updateMini();
-      }
-      function renderYearNav(){ const years=[...new Set(data.map(d=>d.year))]; const nav=document.getElementById('yearNav'); nav.innerHTML=''; years.forEach(y=>{ const b=document.createElement('button'); b.className='pill focusable'; b.textContent=y; b.onclick=()=> {scrollToYear(y); const u=new URL(location); u.searchParams.set('y', y); history.replaceState(null,'',u);} ; nav.appendChild(b); }); }
-      function scrollToYear(y){ const cont=document.getElementById('tViewport'); const cards=(window.__cards||[]).filter(c=>String(c.year)===String(y)); if(cards.length){ cont.scrollTo({left: Math.max(0, cards[0].x-200), behavior:'smooth'}); } }
-      function nearestIndex(){ const cards=window.__cards||[]; const cont=document.getElementById('tViewport'); const mid=cont.scrollLeft + cont.clientWidth/2; let best=0, bd=1e12; for(let i=0;i<cards.length;i++){ const d=Math.abs(cards[i].x-mid); if(d<bd){ bd=d; best=i; } } return best; }
-      function navBy(delta){ const cards=window.__cards||[]; if(!cards.length) return; let i=nearestIndex()+delta; i=Math.max(0, Math.min(cards.length-1, i)); document.getElementById('tViewport').scrollTo({left: Math.max(0, cards[i].x-200), behavior:'smooth'}); }
-      window.addEventListener('keydown', (e)=>{ if (e.key === 'ArrowRight') { navBy(+1); e.preventDefault(); } if (e.key === 'ArrowLeft')  { navBy(-1); e.preventDefault(); } }, {passive:false});
-      function updateMini(){ const vp=document.getElementById('tViewport'); const mini=document.getElementById('miniWindow'); if(!vp||!mini) return; const total=vp.scrollWidth||1, view=vp.clientWidth||1, left=vp.scrollLeft||0; const fracW = Math.max( (view/total)*100, 5 ); const fracL = (left/total)*100; mini.style.width = fracW + '%'; mini.style.left = fracL + '%'; }
-      function miniClick(e){ const vp=document.getElementById('tViewport'); const map=document.getElementById('miniMap'); const rect=map.getBoundingClientRect(); const x=e.clientX - rect.left; const frac = x / rect.width; const target = (vp.scrollWidth - vp.clientWidth) * frac; vp.scrollTo({left: target, behavior:'smooth'}); }
-      let _t=null; const throttledMini=()=>{ cancelAnimationFrame(_t); _t=requestAnimationFrame(updateMini); };
-      let _snapT=null, _dragging=false;
-      function scheduleSnap(){ if(_dragging) return; clearTimeout(_snapT); _snapT = setTimeout(()=>{ const vp=document.getElementById('tViewport'); const cards=(window.__cards||[]); if(!cards.length) return; const mid = vp.scrollLeft + vp.clientWidth/2; let best=cards[0], bd=1e12; for(const c of cards){ const d=Math.abs(c.x-mid); if(d<bd){ bd=d; best=c; } } vp.scrollTo({left: Math.max(0, best.x-200), behavior:'smooth'}); }, 180); }
-
-      const capacity = [
-        {block:'P3 + P7', focus:'HMDS + ancillary', installed:'~4,200 MTPA', reactor:'177.8 kL'},
-        {block:'P2', focus:'High‑purity HMDS', installed:'~600 MTPA', reactor:'13 kL'},
-        {block:'P4', focus:'CMIC', installed:'~1,800–3,200 MTPA*', reactor:'121.75 kL'},
-        {block:'P5', focus:'Oil‑well brines', installed:'14,400 MTPA', reactor:'57.3 kL'},
-        {block:'P1', focus:'CaBr₂ powder', installed:'600 MTPA', reactor:'5 kL'},
-        {block:'P8', focus:'TMCS/CMIC (MP)', installed:'~3,600 MTPA (plan)', reactor:'—'},
-        {block:'P9', focus:'Bromobenzene', installed:'~2,400 MTPA', reactor:'—'},
-        {block:'P10', focus:'Pharma MP (planned)', installed:'—', reactor:'—'}
-      ];
-      function renderCapacity(){ const tb=document.querySelector('#capTable tbody'); tb.innerHTML=''; capacity.forEach(r=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td class="py-2">${r.block}</td><td>${r.focus}</td><td>${r.installed}</td><td>${r.reactor}</td>`; tb.appendChild(tr);}); }
-
-      const products = [
-        {name:'HMDS', aka:'Hexamethyldisilazane', spec:'≥ 99.9% (semi grade); water ≤ 30 ppm', end:'Photoresists, moisture scavenger', hazards:'Flammable, moisture sensitive', notes:'P2/P3/P7 focus'},
-        {name:'E‑HMDS', aka:'Electronic‑grade HMDS', spec:'≥ 99.99%; metals (Na/K) ≤ 10 ppb', end:'Semiconductor adhesion promoter', hazards:'Same as HMDS; strict moisture control', notes:'Grade development'},
-        {name:'CMIC', aka:'2‑Chloromethyl isopropyl carbonate', spec:'Assay ≥ 99.5%; Chloride ≤ 200 ppm', end:'Pharma intermediate', hazards:'Lacrimator / corrosive', notes:'P4'},
-        {name:'TMCS', aka:'Trimethylchlorosilane', spec:'Assay ≥ 99.5%; HCl ≤ 0.2%', end:'Silylation', hazards:'Corrosive; evolves HCl', notes:'Backward‑integration candidate'},
-        {name:'CaBr₂ / ZnBr₂ / NaBr brines', aka:'Oil‑well completion fluids', spec:'Density 1.7–2.3 g/cc', end:'Oil & gas completion/workover', hazards:'Corrosive salts; bromine handling', notes:'P5'},
-        {name:'Bromobenzene', aka:'C6H5Br', spec:'Assay ≥ 99%; Moisture ≤ 0.05%', end:'Pharma/bi‑aryl coupling', hazards:'Irritant', notes:'P9'}
-      ];
-      function renderProducts(){ const host=document.getElementById('products'); host.innerHTML=''; products.forEach(p=>{ const card=document.createElement('div'); card.className='card rounded-xl p-4'; card.innerHTML=`<div class="flex items-center justify-between"><div class="text-lg font-semibold uppercase">${p.name}</div><span class="tag">${p.aka}</span></div><div class="mt-2 text-sm"><b>Spec:</b> ${p.spec}</div><div class="text-sm"><b>End‑use:</b> ${p.end}</div><div class="text-sm"><b>Hazards:</b> ${p.hazards}</div><div class="text-sm"><b>Notes:</b> ${p.notes}</div>`; host.appendChild(card); }); }
-
-      const ladder = [
-        { stage:'1. Idea & Scouting (TRL 1–2)', objective:'Identify a niche import substitute; explore IP angle', scale:'Bench chemistry; grams', capex:'₹0.5–5 lakh', funding:['Self','University lab','Grants (BIRAC/TEQIP)'], docs:['Lab notebook','Prior‑art search','IP disclosure note'], kpis:['Target purity band vs import','Yield >60%','RM availability & hazard notes'], valuation:'N/A' },
-        { stage:'2. Kilo Lab (TRL 3–4)', objective:'Define CTQs; lock impurity map', scale:'1–10 kg lots', capex:'₹5–25 lakh', funding:['Self + friends','Seed grant','Angel (₹10–50 lakh)'], docs:['PFD draft','Spec sheet','Stability'], kpis:['Cpk > 1','Repeatability ±5%','COGS ≤70% of import landed'], valuation:'Angels 5–10% ownership' },
-        { stage:'3. Pilot (TRL 5–6)', objective:'Build scale‑up model; size safety & utilities', scale:'100–1,000 L', capex:'₹50 lakh – ₹2.5 cr', funding:['Seed (₹1–3 cr)','SIDBI/guarantee','Grants'], docs:['HAZOP‑lite','P&ID v1','QC method validation'], kpis:['On‑spec first‑pass >85%','Cycle time ↓','Solvent recovery %'], valuation:'Post‑money ₹8–20 cr' },
-        { stage:'4. First Commercial Line', objective:'Single‑product saleable capacity', scale:'5–20 kL (GLR)', capex:'₹5–15 cr', funding:['Term loan 60–70%','Promoter equity','Subsidy'], docs:['HAZOP','CTO/CEA','ISO 9001'], kpis:['OEE >60%','2–3 LT POs','GM >25%'], valuation:'Revenue 1–1.5× or EBITDA 6–9×' },
-        { stage:'5. Multipurpose Plant (Swing)', objective:'Absorb demand swings', scale:'20–60 kL trains', capex:'₹15–40 cr', funding:['Term + WC','Minority growth equity'], docs:['P&ID swing maps','ZLD plan','SOP/MTP changeover'], kpis:['Changeover <24h','RFT >90%','Plant GM >30%'], valuation:'EBITDA 7–10×' },
-        { stage:'6. Export Scale', objective:'Pass audits + manage forex', scale:'WH + QC harmonisation', capex:'₹3–10 cr', funding:['Accruals','EPC/PCFC','Post‑shipment'], docs:['Audit dossiers','REACH/RoHS','FX policy'], kpis:['Export 30–50%','DSO <75','Reject <1%'], valuation:'Revenue 1–2×; EBITDA 8–11×' },
-        { stage:'7. Backward Integration (TMCS)', objective:'Reduce RM risk; lift margins', scale:'Dedicated block', capex:'₹10–30 cr', funding:['Capex loan','Vendor financing','Lease'], docs:['HAZOP (high‑energy)','Waste management','RM MOQs'], kpis:['Import dependence −50%','GM +300–500 bps','Reliability ↑'], valuation:'Strategic re‑rating possible' },
-        { stage:'8. Pre‑IPO Clean‑up', objective:'Improve governance', scale:'Merge/hive‑off; independent board', capex:'Advisory/systems', funding:['Small secondary/growth equity'], docs:['Ind‑AS track','Controls','ESOP'], kpis:['Close books <30 days','Top‑5 concentration ↓','Accidents = 0'], valuation:'Private prints 9–12× EBITDA' },
-        { stage:'9. IPO Use‑of‑Proceeds', objective:'Capex + working capital', scale:'Fresh + OFS', capex:'Prospectus‑bound', funding:['Equity markets'], docs:['DRHP/RHP','Bankers','Investor deck'], kpis:['Net debt/EBITDA <1.5×','ROCE >18%'], valuation:'Listed peers 8–14× EBITDA' },
-        { stage:'10. Post‑IPO Flywheel', objective:'CWIP discipline + IR cadence', scale:'Capex gates', capex:'Programmatic', funding:['Accruals','Selective debt'], docs:['Gate reviews','KPI dashboards','Integrated report'], kpis:['Capex/ton on plan','Cash cycle ↓','ESG intensity ↓'], valuation:'Deliver → re‑rating' }
-      ];
-      function ladderUI(){ const host=document.getElementById('ladderHost'); host.innerHTML=''; ladder.forEach((x,i)=>{ const box=document.createElement('details'); box.className='card rounded-xl p-4'; if(i<2) box.open=true; const sum=document.createElement('summary'); sum.className='cursor-pointer select-none'; sum.innerHTML=`<b>${x.stage}</b> — <span class="muted">${x.objective}</span>`; box.appendChild(sum); const inner=document.createElement('div'); inner.className='grid md:grid-cols-3 gap-4 mt-3 text-sm'; inner.innerHTML=`<div><div class="muted">Typical scale</div><div>${x.scale}</div></div><div><div class="muted">Capex (indicative)</div><div>${x.capex}</div></div><div><div class="muted">Funding options</div><div>${x.funding.join(', ')}</div></div><div><div class="muted">Documents</div><ul class="list-disc pl-5">${x.docs.map(d=>`<li>${d}</li>`).join('')}</ul></div><div><div class="muted">KPIs</div><ul class="list-disc pl-5">${x.kpis.map(d=>`<li>${d}</li>`).join('')}</ul></div><div><div class="muted">Valuation thumb‑rule</div><div>${x.valuation}</div></div>`; box.appendChild(inner); host.appendChild(box); }); document.getElementById('expandAll').onclick=()=> document.querySelectorAll('#ladderHost details').forEach(d=>d.open=true); document.getElementById('collapseAll').onclick=()=> document.querySelectorAll('#ladderHost details').forEach(d=>d.open=false); }
-
-      function bar(ctx, labels, data, title){ const c=ctx.canvas; const w=c.clientWidth||300, h=c.height; const dpr=window.devicePixelRatio||1; c.width=w*dpr; c.height=h*dpr; c.style.width=w+'px'; c.style.height=h+'px'; const g=c.getContext('2d'); g.scale(dpr,dpr); g.clearRect(0,0,w,h); g.font='12px ui-sans-serif,system-ui'; g.fillStyle='#e5e7eb'; g.fillText(title,12,16); const pad=32, bw=(w-pad*2)/data.length*0.7, gap=(w-pad*2)/data.length*0.3; const max=Math.max(...data)*1.15; const x0=pad, y0=h-pad; const H=y0-pad; g.strokeStyle='rgba(255,255,255,.1)'; g.beginPath(); g.moveTo(x0,y0); g.lineTo(w-pad,y0); g.moveTo(x0,y0); g.lineTo(x0,pad); g.stroke(); for(let i=0;i<data.length;i++){ const x=x0+i*(bw+gap)+gap*0.5; const y=y0-(data[i]/max)*H; g.fillStyle='rgba(34,211,238,.9)'; g.fillRect(x,y,bw,y0-y); g.fillStyle='#94a3b8'; g.fillText(labels[i], x, y0+14); g.fillStyle='#e5e7eb'; g.fillText(String(data[i]), x, y-4);} }
-      function groupedBar(ctx, labels, series, seriesNames, title){ const c=ctx.canvas; const w=c.clientWidth||360, h=c.height; const dpr=window.devicePixelRatio||1; c.width=w*dpr; c.height=h*dpr; c.style.width=w+'px'; c.style.height=h+'px'; const g=c.getContext('2d'); g.scale(dpr,dpr); g.clearRect(0,0,w,h); g.font='12px ui-sans-serif,system-ui'; g.fillStyle='#e5e7eb'; g.fillText(title,12,16); const pad=36, groupW=(w-pad*2)/labels.length, barW=groupW/(series.length+0.5), x0=pad, y0=h-pad; const all=[].concat(...series); const max=Math.max(...all)*1.2; const H=y0-pad; g.strokeStyle='rgba(255,255,255,.1)'; g.beginPath(); g.moveTo(x0, y0); g.lineTo(w-pad, y0); g.moveTo(x0, y0); g.lineTo(x0, pad); g.stroke(); for(let i=0;i<labels.length;i++){ for(let s=0;s<series.length;s++){ const v=series[s][i]; const x=x0 + i*groupW + s*barW + barW*0.25; const y=y0 - (v/max)*H; g.fillStyle=['#38bdf8','#f59e0b','#84cc16'][s%3]; g.fillRect(x,y,barW*0.9,y0-y); g.fillStyle='#e5e7eb'; g.fillText(String(v), x, y-4);} g.fillStyle='#94a3b8'; g.fillText(labels[i], x0 + i*groupW + groupW*0.2, y0+14);} let lx=w-pad-150, ly=12; seriesNames.forEach((n,i)=>{ const g2=c.getContext('2d'); g2.fillStyle=['#38bdf8','#f59e0b','#84cc16'][i%3]; g2.fillRect(lx,ly,10,10); g2.fillStyle='#e5e7eb'; g2.fillText(n,lx+14,ly+10); ly+=14; }); }
-
-      window.addEventListener('DOMContentLoaded', ()=>{
-        renderFilters();
-        document.getElementById('btnAll').onclick=()=>{ document.querySelectorAll('.pill input').forEach(i=> i.checked=true); placeMilestones(); };
-        document.getElementById('btnNone').onclick=()=>{ document.querySelectorAll('.pill input').forEach(i=> i.checked=false); placeMilestones(); };
-        document.getElementById('btnReset').onclick=()=>{ document.getElementById('srch').value=''; document.querySelectorAll('.pill input').forEach(i=> i.checked=true); placeMilestones(); };
-        document.getElementById('filterBar').addEventListener('change', placeMilestones);
-        document.getElementById('srch').addEventListener('input', placeMilestones);
-        document.getElementById('quick1').onclick=()=>{ document.querySelectorAll('.pill input').forEach(i=> i.checked=['foundation','products'].includes(i.dataset.tag)); placeMilestones(); };
-        document.getElementById('quick2').onclick=()=>{ document.querySelectorAll('.pill input').forEach(i=> i.checked=['finance','capacity'].includes(i.dataset.tag)); placeMilestones(); };
-        document.getElementById('quick3').onclick=()=>{ document.querySelectorAll('.pill input').forEach(i=> i.checked=['strategy'].includes(i.dataset.tag)); placeMilestones(); };
-
-        buildTimeline();
-
-        const vp=document.getElementById('tViewport'); const map=document.getElementById('miniMap');
-        let isDown=false, startX=0, scrollLeft=0; 
-        vp.addEventListener('mousedown',e=>{ isDown=true; _dragging=true; startX=e.pageX - vp.offsetLeft; scrollLeft=vp.scrollLeft; });
-        vp.addEventListener('mouseleave',()=>{ isDown=false; _dragging=false; scheduleSnap(); });
-        vp.addEventListener('mouseup',()=>{ isDown=false; _dragging=false; scheduleSnap(); });
-        vp.addEventListener('mousemove',e=>{ if(!isDown) return; const x=e.pageX - vp.offsetLeft; const walk=(x-startX)*1.2; vp.scrollLeft = scrollLeft - walk; throttledMini(); });
-        vp.addEventListener('scroll', ()=>{ throttledMini(); scheduleSnap(); }, {passive:true});
-        vp.addEventListener('wheel', e=>{ if(e.shiftKey){ vp.scrollBy({left: e.deltaY>0? 120: -120}); e.preventDefault(); throttledMini(); scheduleSnap(); }}, {passive:false});
-        map.addEventListener('click', miniClick);
-
-        renderCapacity(); renderProducts();
-
-        bar(document.getElementById('eps').getContext('2d'), ['FY23','FY24'], [15.04, 5.24], 'EPS (₹)');
-        bar(document.getElementById('cwip').getContext('2d'), ['FY23','FY24'], [1364.47, 4244.77], 'CWIP (₹ lakh)');
-        bar(document.getElementById('rnd').getContext('2d'), ['FY24'], [14.48], 'R&D (₹ lakh)');
-
-        const capexLabels = ['Idea','Kilo','Pilot','Line','Multi','Export','Back‑int','Pre‑IPO','IPO Capex','Post‑IPO'];
-        const capexVals   = [0.02, 0.15, 1.5, 10, 25, 6, 20, 1, 50, 30];
-        bar(document.getElementById('capex').getContext('2d'), capexLabels, capexVals, 'Capex (₹ Cr)');
-
-        groupedBar(document.getElementById('wcap').getContext('2d'), ['FY23','FY24'], [[78,85],[52,60],[35,38]], ['DSO','DIO','DPO'], 'Working Capital (days) — illustrative');
-
-        ladderUI();
-
-        document.getElementById('dlMilestones').onclick = ()=>{
-          const rows = [['year','label','text','tag']].concat(data.map(m=>[m.year,m.label,m.text,m.tag]));
-          const blob=new Blob([rows.map(r=> r.join(',')).join('\n')], {type:'text/csv'});
-          const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='milestones.csv'; document.body.appendChild(a); a.click();
-          setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 500);
-        };
-        document.getElementById('dlCapacity').onclick = ()=>{
-          const rows = [['block','focus','installed','reactor']].concat(capacity.map(r=>[r.block,r.focus,r.installed,r.reactor]));
-          const blob=new Blob([rows.map(r=> r.join(',')).join('\n')], {type:'text/csv'});
-          const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='capacity.csv'; document.body.appendChild(a); a.click();
-          setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 500);
-        };
-        document.getElementById('dlProducts').onclick = ()=>{
-          const rows = [['name','aka','spec','end_use','hazards','notes']].concat(products.map(p=>[p.name,p.aka,p.spec,p.end,p.hazards,p.notes]));
-          const blob=new Blob([rows.map(r=> r.join(',')).join('\n')], {type:'text/csv'});
-          const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='products.csv'; document.body.appendChild(a); a.click();
-          setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 500);
-        };
-      });
-    </script>
-  </body>
-</html>
+    ...
